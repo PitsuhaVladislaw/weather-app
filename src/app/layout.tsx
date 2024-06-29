@@ -1,22 +1,23 @@
-import type { Metadata } from "next";
+/** @format */
+'use client'
+
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { QueryClient, QueryClientProvider } from "react-query";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export const metadata: Metadata = {
-  title: "Weather App",
-  description: "Generated for my portfolio and working",
-};
-
 export default function RootLayout({
-  children,
-}: Readonly<{
+  children
+}: {
   children: React.ReactNode;
-}>) {
+}) {
+  const queryClient = new QueryClient();
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <QueryClientProvider client={queryClient}>
+        <body className={inter.className}>{children}</body>
+      </QueryClientProvider>
     </html>
   );
 }
