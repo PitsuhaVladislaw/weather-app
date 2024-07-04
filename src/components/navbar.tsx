@@ -20,9 +20,9 @@ export default function NavBar({}: Props) {
                     <p className='text-slate-900/80 text-sm'>Warsaw</p>
                     <div>
                         <SearchBox 
-                            value=''
-                            onChange={() => console.log('No the end')}
-                            onSubmit={() => console.log('Np the end')}
+                            value='' // Don't forget about it
+                            onChange={() => console.log('No the end')} // Don't forget about it
+                            onSubmit={() => console.log('Np the end')} // Don't forget about it
                         />
                     </div>
                 </section>
