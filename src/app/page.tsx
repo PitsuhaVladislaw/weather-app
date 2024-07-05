@@ -6,7 +6,7 @@ import axios from "axios";
 import { useAtom } from "jotai";
 import { useQuery } from "react-query";
 import { placeAtom } from "@/app/atom";
-import { format, parseISO } from "date-fns"
+import { format, fromUnixTime, parseISO } from "date-fns"
 import Container from "@/components/container";
 import { conKelvintoCelsius } from "@/utils/conKelvintoCelsius";
 import WeatherIcon from "@/components/weatherIcon";
@@ -14,6 +14,8 @@ import { getDayOrNigthIcon } from "@/utils/getDayOrNightIcon";
 import WeatherDetails from "@/components/weatherDetails";
 import { metersToKilometers } from "@/utils/metersToKilometers";
 import { convertWindSpeed } from "@/utils/convertWindSpeed";
+import ForecastWeatherDetails from "@/components/forecastWeatherProps";
+import { useEffect } from "react";
 
 //https:api.openweathermap.org/data/2.5/forecast?q=${place}&appid=e1f073d1bedd9bcfdaf4e724ac135b21&cnt=56
 
@@ -85,9 +87,30 @@ export default function Home() {
     }
   );
 
-  const firstData = data?.list[0]
+  useEffect(() => {
+    refetch();
+  }, [place, refetch]);
 
-  console.log("data:", data?.city)
+  const firstData = data?.list[0];
+
+  console.log("data:", data?.city);
+
+  const uniqueDates = [
+    ...new Set<any>(
+      data?.list.map(
+        entry => new Date(entry.dt * 1000).toISOString().split("T")[0]
+      )
+    )
+  ];
+
+  const firstDataForEachDate = uniqueDates.map(date => {
+    return data?.list.find(entry => {
+      const entryDate = new Date(entry.dt * 1000).toISOString().split("T")[0]
+      const entryTime = new Date(entry.dt * 1000).getHours();
+
+      return entryDate === date && entryTime >= 6;
+    });
+  });
 
   if (isLoading)
     return (
@@ -105,9 +128,8 @@ export default function Home() {
 
   return (
     <div className="flex flex-col gap-4 bg-gray-100 min-h-screen">
-      <NavBar />
+      <NavBar location={data?.city.name} />
       <main className="px-3 max-w-7xl mx-auto flex flex-col gap-9 w-full pb-10 pt-4">
-        {/* today data */}
         <section>
           <div className="space-y-2">
             <h2 className="flex gap-1 text-2xl  items-end ">
@@ -168,23 +190,47 @@ export default function Home() {
               </Container>
               <Container className="bg-yellow-300/80 px-6 gap-4 justify-between overflow-x-auto">
                 <WeatherDetails
-                    visability={metersToKilometers(
-                      firstData?.visibility ?? 10000
-                    )}
-                    airPressure={`${firstData?.main.pressure} hPa`}
-                    humidity={`${firstData?.main.humidity}%`}
-                    sunrise={format(data?.city.sunrise ?? 1702949452, "H:mm")}
-                    sunset={format(data?.city.sunset ?? 1702517657, "H:mm")}
-                    windSpeed={convertWindSpeed(firstData?.wind.speed ?? 1.64)}
-                  />
+                  visability={metersToKilometers(
+                    firstData?.visibility ?? 10000
+                  )}
+                  airPressure={`${firstData?.main.pressure} hPa`}
+                  humidity={`${firstData?.main.humidity}%`}
+                  sunrise={format(fromUnixTime(data?.city.sunrise ?? 1702517657), "H:mm")}
+                  sunset={format(
+                    data?.city.sunset ?? 1702517657, "H:mm"
+                  )}
+                  windSpeed={convertWindSpeed(firstData?.wind.speed ?? 1.64)}
+                />
               </Container>
             </div>
           </div>
         </section>
         <section className="flex w-full flex-col gap-4">
-          <p className="text-2x;">
-
-          </p>
+          <p className="text-2x;">Forcast (7days)</p>
+          {firstDataForEachDate.map((d, i) => (
+            <ForecastWeatherDetails
+              key={i}
+              description={d?.weather[0].description ?? ""}
+              weatherIcon={d?.weather[0].icon ?? "01d"}
+              date={d ? format(parseISO(d.dt_txt), "dd.MM") : ""}
+              day={d ? format(parseISO(d.dt_txt), "dd.MM") : "EEEE"}
+              feels_like={d?.main.feels_like ?? 0}
+              temp={d?.main.temp ?? 0}
+              temp_max={d?.main.temp_max ?? 0}
+              temp_min={d?.main.temp_min ?? 0}
+              airPressure={`${d?.main.pressure} hPa `}
+              humidity={`${d?.main.humidity}% `}
+              sunrise={format(
+                fromUnixTime(data?.city.sunrise ?? 0),
+                "H:mm"
+              )}
+              sunset={format(data?.city.sunset ?? 1702517657,
+                "H:mm"
+              )}
+              visability={`${metersToKilometers(d?.visibility ?? 10000)} `}
+              windSpeed={`${convertWindSpeed(d?.wind.speed ?? 1.64)} `}
+            />
+          ))}
         </section>
       </main>
     </div>

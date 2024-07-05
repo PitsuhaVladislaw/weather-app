@@ -1,11 +1,8 @@
-/** @format */
-import { LuEye } from "react-icons/lu";
+import React from "react";
+import { LuEye, LuSunrise, LuSunset } from "react-icons/lu";
 import { FiDroplet } from "react-icons/fi";
 import { MdAir } from "react-icons/md";
-import { ImMeter2 } from "react-icons/im";
-import { LuSunrise, LuSunset } from "react-icons/lu";
-
-type Props = {}
+import { ImMeter } from "react-icons/im";
 
 export interface WeatherDetailProps {
     visability: string;
@@ -26,38 +23,40 @@ export default function WeatherDetails(props: WeatherDetailProps) {
         sunset = "18:48"
     } = props;
 
-    return <>
+    return (
+        <>
         <SingleWeatherDetail
             icon={<LuEye />}
             information="Visability"
             value={visability}
         />
-        <SingleWeatherDetail 
+        <SingleWeatherDetail
             icon={<FiDroplet />}
             information="Humidity"
             value={humidity}
         />
-        <SingleWeatherDetail 
+        <SingleWeatherDetail
             icon={<MdAir />}
             information="Wind speed"
             value={windSpeed}
         />
-        <SingleWeatherDetail 
-            icon={<ImMeter2 />}
+        <SingleWeatherDetail
+            icon={<ImMeter />}
             information="Air Pressure"
             value={airPressure}
         />
         <SingleWeatherDetail
-        icon={<LuSunrise />}
-        information="Sunrise"
-        value={sunrise}
+            icon={<LuSunrise />}
+            information="Sunrise"
+            value={sunrise}
         />
         <SingleWeatherDetail
             icon={<LuSunset />}
             information="Sunset"
             value={sunset}
         />
-    </>
+        </>
+    );
 }
 
 export interface SingleWeatherDetailProps {
@@ -69,9 +68,9 @@ export interface SingleWeatherDetailProps {
 function SingleWeatherDetail(props: SingleWeatherDetailProps) {
     return (
         <div className="flex flex-col justify-between gap-2 items-center text-xs font-semibold text-black/80">
-            <p className="whitespace-nowrap">{props.information}</p>
-            <div className="text-3xl">{props.icon}</div>
-            <p>{props.value}</p>
+        <p className="whitespace-nowrap">{props.information}</p>
+        <div className="text-3xl">{props.icon}</div>
+        <p>{props.value}</p>
         </div>
-    )
+    );
 }
